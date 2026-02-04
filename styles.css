@@ -226,6 +226,7 @@ h3 {
     font-size: 3.5rem;
     margin-bottom: 15px;
     background: linear-gradient(90deg, #fff, #8b949e);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }

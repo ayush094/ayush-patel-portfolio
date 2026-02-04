@@ -38,6 +38,14 @@ body {
     line-height: 1.6;
 }
 
+html.nav-open,
+body.nav-open {
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    touch-action: none;
+}
+
 /* Cursor Glow */
 .cursor-glow {
     position: fixed;

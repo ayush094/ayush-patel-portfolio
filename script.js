@@ -4,12 +4,17 @@ const navLinks = document.querySelector('.nav-links');
 
 mobileMenu.addEventListener('click', () => {
     navLinks.classList.toggle('active');
+    const isOpen = navLinks.classList.contains('active');
+    document.body.classList.toggle('nav-open', isOpen);
+    document.documentElement.classList.toggle('nav-open', isOpen);
 });
 
 // Close menu when clicking a link
 document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', () => {
         navLinks.classList.remove('active');
+        document.body.classList.remove('nav-open');
+        document.documentElement.classList.remove('nav-open');
     });
 });
 

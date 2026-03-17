@@ -38,41 +38,45 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Typewriter Effect for Hero Role
-const roleElement = document.querySelector('.hero-role');
-const roles = ["Backend Developer", "Django Expert", "AI Systems Engineer"];
-let roleIndex = 0;
-let charIndex = 0;
-let isDeleting = false;
-let typeSpeed = 100;
+// Basic content protection deterrents
+document.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+});
 
-function typeWriter() {
-    const currentRole = roles[roleIndex];
+document.addEventListener('copy', (event) => {
+    event.preventDefault();
+});
 
-    if (isDeleting) {
-        roleElement.textContent = currentRole.substring(0, charIndex - 1) + "|";
-        charIndex--;
-        typeSpeed = 50;
-    } else {
-        roleElement.textContent = currentRole.substring(0, charIndex + 1) + "|";
-        charIndex++;
-        typeSpeed = 100;
+document.addEventListener('cut', (event) => {
+    event.preventDefault();
+});
+
+document.addEventListener('selectstart', (event) => {
+    event.preventDefault();
+});
+
+document.addEventListener('dragstart', (event) => {
+    event.preventDefault();
+});
+
+document.addEventListener('keydown', (event) => {
+    const key = event.key.toLowerCase();
+    const ctrlOrCmd = event.ctrlKey || event.metaKey;
+
+    if (event.key === 'F12') {
+        event.preventDefault();
+        return;
     }
 
-    if (!isDeleting && charIndex === currentRole.length) {
-        isDeleting = true;
-        typeSpeed = 2000; // Pause at end
-    } else if (isDeleting && charIndex === 0) {
-        isDeleting = false;
-        roleIndex = (roleIndex + 1) % roles.length;
-        typeSpeed = 500;
+    if (ctrlOrCmd && ['u', 's', 'c', 'x', 'a'].includes(key)) {
+        event.preventDefault();
+        return;
     }
 
-    setTimeout(typeWriter, typeSpeed);
-}
-
-// Start the typing effect
-document.addEventListener('DOMContentLoaded', typeWriter);
+    if (ctrlOrCmd && event.shiftKey && ['i', 'j', 'c'].includes(key)) {
+        event.preventDefault();
+    }
+});
 
 // Cursor Glow Follow
 const cursorGlow = document.querySelector('.cursor-glow');

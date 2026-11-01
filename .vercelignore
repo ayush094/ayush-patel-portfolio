@@ -1,0 +1,9 @@
+# Local-only tooling and repo metadata are not part of the published site.
+tools/
+docs/
+.vscode/
+README.md
+.gitignore
+
+# GitHub Pages custom-domain file; Vercel ignores it, so do not ship it.
+CNAME

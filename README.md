@@ -62,7 +62,9 @@ Use one option only; they all use the same port.
 ├── robots.txt
 ├── sitemap.xml
 ├── site.webmanifest
-├── CNAME                          # buildwithayush.in
+├── vercel.json                    # Security headers + asset caching (Vercel only)
+├── .vercelignore                  # Keeps local tooling out of Vercel deployments
+├── CNAME                          # buildwithayush.in (GitHub Pages only)
 ├── assets/
 │   ├── profile.jpg                # Optimised portrait (760 × 1140)
 │   ├── shree-krishna-preview.*    # Project screenshot (WebP + PNG fallback)
@@ -75,10 +77,12 @@ Use one option only; they all use the same port.
     ├── resume_content.py          # Single source of truth for resume content
     ├── build_resume.py            # Builds the DOCX
     ├── build_resume_pdf.py        # Builds the PDF (ReportLab)
-    └── build_assets.py            # Rebuilds optimised images / OG card / icons
+    ├── build_assets.py            # Rebuilds optimised images / OG card / icons
+    └── set_site_url.py            # Repoints every URL reference at a new domain
 ```
 
-`tools/` is optional. GitHub Pages serves it as inert files; nothing on the site calls
+`tools/` is optional. GitHub Pages serves it as inert files and `.vercelignore`
+excludes it from Vercel; nothing on the site calls
 it. It exists so the resume and images can be regenerated consistently.
 
 ## Editing the site
@@ -111,13 +115,43 @@ python tools/build_assets.py       # requires Pillow
 
 ## Deploying
 
-The site is already configured for GitHub Pages:
+There is no build step, so every host below serves the repository root as-is.
+No environment variables, server configuration or database are required.
+
+### Vercel (recommended, free)
+
+1. Go to <https://vercel.com/new> and import `ayush094/ayush-patel-portfolio`.
+2. Framework preset: **Other**. Build command: empty. Output directory: `.`
+3. Deploy. Every push to `main` then redeploys automatically.
+4. Rename the project under **Settings → General** if you want a shorter URL
+   (the domain becomes `<project-name>.vercel.app`).
+
+`vercel.json` adds security headers and a one-hour cache on `/assets`, and
+`.vercelignore` keeps `tools/`, `docs/`, `.vscode/` and `CNAME` out of the
+deployment.
+
+### GitHub Pages (fallback)
 
 1. Commit and push to `main`.
 2. GitHub Pages serves the repository root.
-3. `CNAME` keeps the custom domain **buildwithayush.in**.
+3. `CNAME` holds the custom domain. **Delete it if you stop renewing the domain**,
+   otherwise Pages redirects every request to the dead host and the site goes dark
+   — including the `github.io` fallback.
 
-No environment variables, server configuration or database are required.
+### Moving to a new URL
+
+The public URL appears in the canonical tag, Open Graph, Twitter, JSON-LD, the
+sitemap, `robots.txt`, the README, the resume source and the OG image. Update all
+of them at once:
+
+```powershell
+python tools/set_site_url.py --check                              # where is it used?
+python tools/set_site_url.py --dry-run https://name.vercel.app    # preview changes
+python tools/set_site_url.py https://name.vercel.app --drop-custom-domain
+```
+
+The last command also rebuilds the resume PDF/DOCX and the OG image, and deletes
+both `CNAME` files so GitHub Pages stops redirecting to the old domain.
 
 ## Accessibility & quality notes
 

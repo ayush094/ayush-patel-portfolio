@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ayush Patel">
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#0a0e13" stroke="#3ddc97" stroke-width="2"/>
+  <text x="32" y="41" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="700" fill="#e9eff7">AP</text>
+  <circle cx="49" cy="49" r="3" fill="#3ddc97"/>
+</svg>

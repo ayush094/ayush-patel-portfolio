@@ -1,41 +1,130 @@
-# Ayush Patel - Developer Portfolio
+# Ayush Patel — Portfolio
 
-A one-page, professional developer portfolio built with HTML, CSS, and JavaScript.
-Designed with a dark, developer-focused aesthetic.
+A single-page, static portfolio for **buildwithayush.in**.
+No backend, no framework, no build step: plain HTML, CSS and JavaScript, deployed
+directly from this repository with GitHub Pages.
 
-## 🚀 How to View Locally
-1.  Open the folder **`c:\Ayush portfolio`**.
-2.  Double-click **`index.html`**.
-3.  The website will open in your default web browser.
+**Positioning:** Backend Software Engineer — Python · Django · REST APIs · PostgreSQL ·
+AI-powered systems.
 
-## 🌐 How to Publish (Make it Live)
-To share your portfolio with recruiters, you need to deploy it. The easiest free options are **Vercel** or **GitHub Pages**.
+## Stack
 
-### Option 1: Vercel (Recommended)
-1.  Go to [vercel.com](https://vercel.com) and sign up.
-2.  Install Vercel CLI (optional) or just drag and drop your folder if using their dashboard.
-3.  **Easier method with Git**:
-    - Push this folder to a GitHub repository.
-    - Connect your GitHub account to Vercel.
-    - Import the repository.
-    - Click **Deploy**.
+| Layer | Choice |
+| --- | --- |
+| Markup | Semantic HTML5 (`index.html`) |
+| Styling | Hand-written CSS with custom properties (`styles.css`) |
+| Behaviour | Vanilla JavaScript, no dependencies (`script.js`) |
+| Fonts | Inter + JetBrains Mono (Google Fonts) |
+| Hosting | GitHub Pages + custom domain (`CNAME`) |
 
-### Option 2: GitHub Pages
-1.  Create a new repository on GitHub (e.g., `portfolio`).
-2.  Push your code to GitHub:
-    ```bash
-    git init
-    git add .
-    git commit -m "Initial commit"
-    git branch -M main
-    git remote add origin https://github.com/ayush094/YOUR-REPO-NAME.git
-    git push -u origin main
-    ```
-3.  Go to **Settings > Pages**.
-4.  Select `main` branch and save.
-5.  Your site will be live at `https://ayush094.github.io/portfolio`.
+There is no runtime backend and nothing to compile. Pushing to `main` publishes the
+site.
 
-## 🛠️ Customization
-- **Edit Content**: Open `index.html` in a text editor (VS Code, Notepad).
-- **Change Styles**: Edit `styles.css`.
-- **Update Images**: Replace files in the `assets/` folder.
+## Local preview
+
+### Option 1 — VS Code Live Server (recommended)
+
+The workspace already pins the port to **5502**.
+
+1. Install the **Live Server** extension (VS Code will suggest it from
+   `.vscode/extensions.json`).
+2. Open the project folder in VS Code.
+3. Right-click `index.html` → **Open with Live Server**, or click **Go Live** in the
+   status bar.
+4. Open <http://127.0.0.1:5502>.
+
+Saving `index.html`, `styles.css` or `script.js` reloads the browser automatically.
+
+### Option 2 — Python one-liner (no extensions)
+
+```powershell
+python -m http.server 5502
+```
+
+Then open <http://localhost:5502>. Refresh after edits; there is no auto-reload.
+
+### Option 3 — BrowserSync (auto-reload without installing anything)
+
+```powershell
+npx browser-sync start --server --port 5502 --files "index.html, styles.css, script.js, assets/**"
+```
+
+Use one option only; they all use the same port.
+
+## Project structure
+
+```text
+.
+├── index.html                     # All page content and metadata
+├── styles.css                     # Design tokens, layout, components, responsive rules
+├── script.js                      # Nav, active section, scroll reveal
+├── 404.html                       # Static not-found page
+├── robots.txt
+├── sitemap.xml
+├── site.webmanifest
+├── CNAME                          # buildwithayush.in
+├── assets/
+│   ├── profile.jpg                # Optimised portrait (760 × 1140)
+│   ├── shree-krishna-preview.*    # Project screenshot (WebP + PNG fallback)
+│   ├── og-image.png               # Social share card (1200 × 630)
+│   ├── favicon.svg / .png
+│   ├── apple-touch-icon.png
+│   ├── Ayush_Patel_Resume.pdf     # Downloadable, ATS-friendly resume
+│   └── Ayush_Patel_Resume.docx    # Editable resume source
+└── tools/                         # LOCAL-ONLY helpers, not used by the website
+    ├── resume_content.py          # Single source of truth for resume content
+    ├── build_resume.py            # Builds the DOCX
+    ├── build_resume_pdf.py        # Builds the PDF (ReportLab)
+    └── build_assets.py            # Rebuilds optimised images / OG card / icons
+```
+
+`tools/` is optional. GitHub Pages serves it as inert files; nothing on the site calls
+it. It exists so the resume and images can be regenerated consistently.
+
+## Editing the site
+
+- **Text, sections, links:** `index.html`
+- **Colours, spacing, typography:** the `:root` block at the top of `styles.css`
+- **Interaction:** `script.js`
+
+All content is in the HTML, so it is indexable without JavaScript.
+
+## Updating the resume
+
+The site links directly to `assets/Ayush_Patel_Resume.pdf` (no Google Drive).
+
+Edit `tools/resume_content.py`, then rebuild both formats:
+
+```powershell
+python tools/build_resume.py       # -> assets/Ayush_Patel_Resume.docx
+python tools/build_resume_pdf.py   # -> assets/Ayush_Patel_Resume.pdf
+```
+
+Requirements: `pip install python-docx reportlab`. The PDF is intentionally ASCII-only
+with a single column and no tables or graphics, so ATS parsers read it reliably.
+
+To rebuild images (portrait, project screenshot, favicon, OG card):
+
+```powershell
+python tools/build_assets.py       # requires Pillow
+```
+
+## Deploying
+
+The site is already configured for GitHub Pages:
+
+1. Commit and push to `main`.
+2. GitHub Pages serves the repository root.
+3. `CNAME` keeps the custom domain **buildwithayush.in**.
+
+No environment variables, server configuration or database are required.
+
+## Accessibility & quality notes
+
+- Skip link, keyboard-operable mobile menu, visible focus styles.
+- Text selection, copy and context menus are not blocked.
+- `prefers-reduced-motion` disables animations.
+- Images have intrinsic `width`/`height` to avoid layout shift; below-the-fold images
+  are lazy-loaded.
+- Metadata includes canonical URL, Open Graph, Twitter card, JSON-LD `Person` schema,
+  sitemap and robots directives.

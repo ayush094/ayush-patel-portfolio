@@ -1,0 +1,23 @@
+{
+    "name": "Ayush Patel — Backend Software Engineer",
+    "short_name": "Ayush Patel",
+    "description": "Portfolio of Ayush Patel, a backend software engineer working with Python, Django, REST APIs and PostgreSQL.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#0a0e13",
+    "theme_color": "#0a0e13",
+    "icons": [
+        {
+            "src": "assets/favicon.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "assets/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ]
+}

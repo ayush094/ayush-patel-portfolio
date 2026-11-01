@@ -1,113 +1,244 @@
-// Mobile Menu Toggle
-const mobileMenu = document.getElementById('mobile-menu');
-const navLinks = document.querySelector('.nav-links');
+/* ==========================================================================
+   Ayush Patel — Portfolio behaviour
+   Small, dependency-free enhancements. Content works without JS.
+   ========================================================================== */
 
-mobileMenu.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
-    const isOpen = navLinks.classList.contains('active');
-    document.body.classList.toggle('nav-open', isOpen);
-    document.documentElement.classList.toggle('nav-open', isOpen);
-});
+(function () {
+    'use strict';
 
-// Close menu when clicking a link
-document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => {
-        navLinks.classList.remove('active');
-        document.body.classList.remove('nav-open');
-        document.documentElement.classList.remove('nav-open');
-    });
-});
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Smooth scroll for anchor links (if not supported natively)
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href');
-        const targetElement = document.querySelector(targetId);
+    /* ----------------------------------------------------------------------
+       Header: add depth once the page is scrolled
+       ---------------------------------------------------------------------- */
 
-        if (targetElement) {
-            const headerOffset = 70;
-            const elementPosition = targetElement.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: "smooth"
-            });
-        }
-    });
-});
-
-// Basic content protection deterrents
-document.addEventListener('contextmenu', (event) => {
-    event.preventDefault();
-});
-
-document.addEventListener('copy', (event) => {
-    event.preventDefault();
-});
-
-document.addEventListener('cut', (event) => {
-    event.preventDefault();
-});
-
-document.addEventListener('selectstart', (event) => {
-    event.preventDefault();
-});
-
-document.addEventListener('dragstart', (event) => {
-    event.preventDefault();
-});
-
-document.addEventListener('keydown', (event) => {
-    const key = event.key.toLowerCase();
-    const ctrlOrCmd = event.ctrlKey || event.metaKey;
-
-    if (event.key === 'F12') {
-        event.preventDefault();
-        return;
-    }
-
-    if (ctrlOrCmd && ['u', 's', 'c', 'x', 'a'].includes(key)) {
-        event.preventDefault();
-        return;
-    }
-
-    if (ctrlOrCmd && event.shiftKey && ['i', 'j', 'c'].includes(key)) {
-        event.preventDefault();
-    }
-});
-
-// Cursor Glow Follow
-const cursorGlow = document.querySelector('.cursor-glow');
-const prefersFinePointer = window.matchMedia('(pointer: fine)').matches;
-
-if (cursorGlow && prefersFinePointer) {
-    let targetX = window.innerWidth / 2;
-    let targetY = window.innerHeight / 2;
-    let currentX = targetX;
-    let currentY = targetY;
-    const followSpeed = 0.18;
-
-    const updateGlow = () => {
-        currentX += (targetX - currentX) * followSpeed;
-        currentY += (targetY - currentY) * followSpeed;
-        cursorGlow.style.left = `${currentX}px`;
-        cursorGlow.style.top = `${currentY}px`;
-        requestAnimationFrame(updateGlow);
+    var header = document.querySelector('.site-header');
+    var onScroll = function () {
+        if (!header) return;
+        header.classList.toggle('is-scrolled', window.scrollY > 8);
     };
 
-    window.addEventListener('mousemove', (event) => {
-        targetX = event.clientX;
-        targetY = event.clientY;
-        cursorGlow.classList.add('is-visible');
-    });
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
 
-    window.addEventListener('mouseout', (event) => {
-        if (!event.relatedTarget && !event.toElement) {
-            cursorGlow.classList.remove('is-visible');
+    /* ----------------------------------------------------------------------
+       Mobile navigation
+       ---------------------------------------------------------------------- */
+
+    var toggle = document.getElementById('nav-toggle');
+    var nav = document.getElementById('primary-nav');
+
+    if (toggle && nav) {
+        var setNavState = function (open) {
+            nav.classList.toggle('is-open', open);
+            document.body.classList.toggle('nav-open', open);
+            toggle.setAttribute('aria-expanded', String(open));
+            toggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+        };
+
+        toggle.addEventListener('click', function () {
+            var isOpen = toggle.getAttribute('aria-expanded') === 'true';
+            setNavState(!isOpen);
+            if (!isOpen) {
+                var firstLink = nav.querySelector('a');
+                if (firstLink) firstLink.focus({ preventScroll: true });
+            }
+        });
+
+        // Close when a destination is chosen
+        nav.addEventListener('click', function (event) {
+            if (event.target.closest('a')) setNavState(false);
+        });
+
+        // Close on Escape and return focus to the toggle
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && nav.classList.contains('is-open')) {
+                setNavState(false);
+                toggle.focus();
+            }
+        });
+
+        // Close when clicking the scrim (anything outside the drawer)
+        document.addEventListener('click', function (event) {
+            if (!nav.classList.contains('is-open')) return;
+            if (nav.contains(event.target) || toggle.contains(event.target)) return;
+            setNavState(false);
+        });
+
+        // Reset state when the desktop layout returns
+        var desktopQuery = window.matchMedia('(min-width: 901px)');
+        var handleDesktop = function (event) {
+            if (event.matches) setNavState(false);
+        };
+
+        if (typeof desktopQuery.addEventListener === 'function') {
+            desktopQuery.addEventListener('change', handleDesktop);
+        } else if (typeof desktopQuery.addListener === 'function') {
+            desktopQuery.addListener(handleDesktop);
         }
+    }
+
+    /* ----------------------------------------------------------------------
+       Back to top (the sticky header makes a plain #top anchor unreliable)
+       ---------------------------------------------------------------------- */
+
+    document.querySelectorAll('a[href="#top"]').forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: prefersReducedMotion ? 'auto' : 'smooth'
+            });
+            if (history.replaceState) history.replaceState(null, '', window.location.pathname);
+        });
     });
 
-    updateGlow();
-}
+    /* ----------------------------------------------------------------------
+       Cursor accent — a trailing ring and soft glow over fine pointers
+       ---------------------------------------------------------------------- */
+
+    var finePointer = window.matchMedia('(pointer: fine)').matches;
+
+    if (finePointer && !prefersReducedMotion) {
+        var glow = document.querySelector('.cursor-glow');
+        var ring = document.querySelector('.cursor-ring');
+
+        if (glow && ring) {
+            var pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+            var glowPos = { x: pointer.x, y: pointer.y };
+            var ringPos = { x: pointer.x, y: pointer.y };
+            var animating = false;
+
+            var renderCursor = function () {
+                glowPos.x += (pointer.x - glowPos.x) * 0.08;
+                glowPos.y += (pointer.y - glowPos.y) * 0.08;
+                ringPos.x += (pointer.x - ringPos.x) * 0.32;
+                ringPos.y += (pointer.y - ringPos.y) * 0.32;
+
+                glow.style.transform = 'translate3d(' + glowPos.x + 'px,' + glowPos.y + 'px,0)';
+                ring.style.transform = 'translate3d(' + ringPos.x + 'px,' + ringPos.y + 'px,0)';
+
+                requestAnimationFrame(renderCursor);
+            };
+
+            document.addEventListener(
+                'pointermove',
+                function (event) {
+                    pointer.x = event.clientX;
+                    pointer.y = event.clientY;
+
+                    if (!animating) {
+                        animating = true;
+                        glow.classList.add('is-visible');
+                        ring.classList.add('is-visible');
+                        renderCursor();
+                    }
+                },
+                { passive: true }
+            );
+
+            document.addEventListener('pointerover', function (event) {
+                var target = event.target;
+                var interactive =
+                    target && typeof target.closest === 'function'
+                        ? target.closest('a, button, [role="button"], input, textarea, select, summary')
+                        : null;
+                ring.classList.toggle('is-interactive', Boolean(interactive));
+            });
+
+            var hideCursor = function () {
+                glow.classList.remove('is-visible');
+                ring.classList.remove('is-visible', 'is-interactive');
+            };
+
+            document.addEventListener('mouseleave', hideCursor);
+            window.addEventListener('blur', hideCursor);
+        }
+    }
+
+    /* ----------------------------------------------------------------------
+       Active section highlighting
+       ---------------------------------------------------------------------- */
+
+    var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-list a[href^="#"]'));
+    var sections = navLinks
+        .map(function (link) {
+            return document.querySelector(link.getAttribute('href'));
+        })
+        .filter(Boolean);
+
+    if (sections.length && 'IntersectionObserver' in window) {
+        var visibleSections = new Map();
+
+        var sectionObserver = new IntersectionObserver(
+            function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        visibleSections.set(entry.target.id, entry.intersectionRatio);
+                    } else {
+                        visibleSections.delete(entry.target.id);
+                    }
+                });
+
+                var activeId = null;
+                var bestRatio = 0;
+                visibleSections.forEach(function (ratio, id) {
+                    if (ratio > bestRatio) {
+                        bestRatio = ratio;
+                        activeId = id;
+                    }
+                });
+
+                navLinks.forEach(function (link) {
+                    var isActive = activeId !== null && link.getAttribute('href') === '#' + activeId;
+                    link.classList.toggle('is-active', isActive);
+                    if (isActive) {
+                        link.setAttribute('aria-current', 'true');
+                    } else {
+                        link.removeAttribute('aria-current');
+                    }
+                });
+            },
+            { rootMargin: '-35% 0px -55% 0px', threshold: [0, 0.25, 0.5, 1] }
+        );
+
+        sections.forEach(function (section) {
+            sectionObserver.observe(section);
+        });
+    }
+
+    /* ----------------------------------------------------------------------
+       Scroll reveal (progressive, skipped for reduced motion)
+       ---------------------------------------------------------------------- */
+
+    if (!prefersReducedMotion && 'IntersectionObserver' in window) {
+        var revealTargets = document.querySelectorAll(
+            '.section-head, .focus-card, .skill-card, .timeline-item, .project-card, .edu-card, .cert-card, .contact-panel'
+        );
+
+        var revealObserver = new IntersectionObserver(
+            function (entries, observer) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) return;
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                });
+            },
+            { rootMargin: '0px 0px -8% 0px', threshold: 0.08 }
+        );
+
+        revealTargets.forEach(function (element, index) {
+            element.classList.add('reveal');
+            // Small stagger for cards sitting side by side
+            element.style.transitionDelay = Math.min(index % 4, 3) * 60 + 'ms';
+            revealObserver.observe(element);
+        });
+    }
+
+    /* ----------------------------------------------------------------------
+       Footer year
+       ---------------------------------------------------------------------- */
+
+    var year = document.getElementById('year');
+    if (year) year.textContent = String(new Date().getFullYear());
+})();
